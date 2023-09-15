@@ -3,6 +3,7 @@ let app = express();
 const mongoose = require("mongoose");
 let expressWs = require('express-ws')(app)
 const Chat = require("./model/chat")
+require('dotenv').config()
 
 mongoose
   .connect(
@@ -14,6 +15,7 @@ mongoose
 app.set("view engine", "ejs");
 app.use(express.urlencoded({extended : false}))
 
+app.use("/api", require("./routes/api"));
 
 app.ws('/chat/:id' , (ws , req) => {
   console.log(req.params);
@@ -32,7 +34,5 @@ app.ws('/chat/:id' , (ws , req) => {
     })
   })
 })
-app.use('/chat' , require('./routes/chat'))
-// app.use("/", require("./routes/index"));
 
 app.listen(3000, () => console.log("online"));
