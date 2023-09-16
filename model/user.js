@@ -4,9 +4,8 @@ const Schima = mongoose.Schema;
 const userSchima = new Schima(
   {
     name: { type: String, required: true },
-    username: { type: String, required: true },
+    username: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true },
-    token: { type: String, required: true, unique: true, index: true },
   },
   { timestamps: true }
 );

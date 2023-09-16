@@ -12,20 +12,15 @@ module.exports = new (class authController extends Controller {
       if (user) {
         if (await bcrypt.compare(req.body.password, user.password)) {
           jwt.sign(
-            { user },
+            { _id: user._id, username: user.username, name: user.name },
             process.env.SECRET_KEY,
             { expiresIn: "1h" },
             async (err, token) => {
-              User.updateOne(
-                { username: user.username },
-                { $set: { token: token } }
-              ).then((result) => {
-                res.status(200).json({
-                  id: user._id,
-                  name: user.name,
-                  username: user.username,
-                  token: token,
-                });
+              res.status(200).json({
+                id: user._id,
+                name: user.name,
+                username: user.username,
+                token: token,
               });
             }
           );
@@ -54,25 +49,18 @@ module.exports = new (class authController extends Controller {
           username: req.body.username,
           name: req.body.name || "",
           password: bcrypt.hashSync(req.body.password, sult),
-          token: req.body.username,
         });
         newUser.save().then((result) => {
           jwt.sign(
-            { newUser },
+            { _id: result._id, username: result.username, name: result.name },
             process.env.SECRET_KEY,
             { expiresIn: "1h" },
-            async (err, token) => {
-              User.updateOne(
-                { username: result.username },
-                { $set: { token: token } }
-              ).then(async (updateResult) => {
-                let newU = await User.findOne({ username: result.username });
-                res.status(200).json({
-                  id: newU._id,
-                  username: newU.username,
-                  name: newU.name,
-                  token: newU.token,
-                });
+            (err, token) => {
+              res.status(200).json({
+                id: result._id,
+                username: result.username,
+                name: result.name,
+                token: token,
               });
             }
           );
