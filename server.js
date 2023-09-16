@@ -2,10 +2,11 @@ const express = require("express");
 let app = express();
 const mongoose = require("mongoose");
 let expressWs = require("express-ws")(app);
+require("dotenv").config();
+
+const jwt = require("jsonwebtoken");
 const Chat = require("./model/chat");
 const ChatList = require("./model/chatsList");
-require("dotenv").config();
-const jwt = require("jsonwebtoken");
 
 mongoose
   .connect(
@@ -48,21 +49,21 @@ app.ws("/chat/:id/:token", async (ws, req) => {
       ws.clientId === chatDetails.firstUser.id ||
       ws.clientId === chatDetails.secondUser.id
     ) {
-    const newChat = new Chat({
-      text: parserMsg.text,
-      senderId: parserMsg.senderId,
-      chatListId: req.params.id,
-    });
-    newChat.save().then((result) => {
-      expressWs
-        .getWss()
-        .clients.forEach(
-          (client) =>
-            (client.clientId === parserMsg.senderId ||
-              client.clientId === parserMsg.receiverId) &&
-            client.send(JSON.stringify(parserMsg))
-        );
-    });
+      const newChat = new Chat({
+        text: parserMsg.text,
+        senderId: parserMsg.senderId,
+        chatListId: req.params.id,
+      });
+      newChat.save().then((result) => {
+        expressWs
+          .getWss()
+          .clients.forEach(
+            (client) =>
+              (client.clientId === parserMsg.senderId ||
+                client.clientId === parserMsg.receiverId) &&
+              client.send(JSON.stringify(parserMsg))
+          );
+      });
     }
   });
 });
