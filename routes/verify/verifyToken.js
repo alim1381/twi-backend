@@ -6,7 +6,11 @@ const verifyToken = (req, res, next) => {
     req.token = token;
     next();
   } else {
-    res.sendStatus(403);
+    res.status(403).json({
+      message : "Token is not found",
+      success : false
+
+    });
   }
 };
 

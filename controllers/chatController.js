@@ -7,23 +7,30 @@ module.exports = new (class chatController extends Controller {
   async createChat(req, res, next) {
     // inputs = {senderId , receiverId , text}
     try {
-      const newChatList = new ChatList({
-        firstUser: req.body.senderId,
-        secondUser: req.body.receiverId,
-      });
-      newChatList.save().then((result) => {
-        const newChat = new Chat({
-          text: req.body.text,
-          senderId: req.body.senderId,
-          chatListId: result._id,
+      if (req.body.senderId === req.userData._id) {
+        const newChatList = new ChatList({
+          firstUser: req.userData._id,
+          secondUser: req.body.receiverId,
         });
-        newChat.save().then((r) => {
-          res.json({
-            message: "The page was created successfully",
+        newChatList.save().then((result) => {
+          const newChat = new Chat({
+            text: req.body.text,
+            senderId: req.userData._id,
             chatListId: result._id,
           });
+          newChat.save().then((r) => {
+            res.json({
+              message: "The page was created successfully",
+              chatListId: result._id,
+            });
+          });
         });
-      });
+      } else {
+        res.status(404).json({
+          message: "The Entered senderId does not match your id",
+          success: false,
+        });
+      }
     } catch (error) {
       next(error);
     }
@@ -37,17 +44,16 @@ module.exports = new (class chatController extends Controller {
           { secondUser: req.userData._id },
         ],
       })
-        .populate("firstUser", "-password -token -updatedAt -createdAt")
-        .populate("secondUser", "-password -token -updatedAt -createdAt");
-      res.status(200).json({
-        userChatList,
-      });
+        .select("-__v -updatedAt")
+        .populate("firstUser", "-password -token -updatedAt -createdAt -__v")
+        .populate("secondUser", "-password -token -updatedAt -createdAt -__v");
+      res.status(200).json(userChatList);
     } catch (error) {
       next(error);
     }
   }
 
-  async getOneChat(req, res , next) {
+  async getOneChat(req, res, next) {
     try {
       let chats = await Chat.find({ chatListId: req.params.id })
         .sort({ createdAt: -1 })
@@ -57,14 +63,17 @@ module.exports = new (class chatController extends Controller {
         .select("-createdAt -updatedAt -__v")
         .populate("firstUser", "-password -token -updatedAt -createdAt -__v")
         .populate("secondUser", "-password -token -updatedAt -createdAt -__v");
-      if (chatList.firstUser.id === req.userData._id || chatList.secondUser.id === req.userData._id) {
+      if (
+        chatList.firstUser.id === req.userData._id ||
+        chatList.secondUser.id === req.userData._id
+      ) {
         res.status(200).json({
           profiles: chatList,
           messages: chats,
         });
       } else {
         res.status(403).json({
-          messages: "You do not have access to this information",
+          messages: "You do not have access to this chats",
         });
       }
     } catch (error) {

@@ -4,9 +4,9 @@ const verify = require('./verify/verify')
 
 router.use("/auth", require("./auth"));
 
-router.use("/chat", require("./chat"));
+router.use("/chats", require("./chat"));
 router.use(verify)
-router.use("/post", require("./post"));
+router.use("/posts", require("./post"));
 
 router.all("*", (req, res, next) => {
   try {

@@ -7,7 +7,7 @@ router.use(verifyToken, (req, res, next) => {
   jwt.verify(req.token, process.env.SECRET_KEY, (err, authData) => {
     if (err) {
       res.status(403).json({
-        message : "The token is not valid",
+        message : "Your token has expired",
         success : false
       });
     } else {

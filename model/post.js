@@ -4,7 +4,11 @@ const Schima = mongoose.Schema;
 const postSchima = new Schima(
   {
     textBody: { type: String, require: true },
-    author: { type: mongoose.Schema.Types.ObjectId, ref : "user" ,require: true },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      require: true,
+    },
   },
   { timestamps: true }
 );
