@@ -11,17 +11,29 @@ module.exports = new (class authController extends Controller {
       let user = await User.findOne({ username: req.body.username });
       if (user) {
         if (await bcrypt.compare(req.body.password, user.password)) {
-          jwt.sign(
-            { _id: user._id, username: user.username, name: user.name , blueTick : user.blueTick, },
+          const refreshToken = await jwt.sign(
+            { _id: user._id },
             process.env.SECRET_KEY,
-            { expiresIn: "1h" },
+            { expiresIn: "1h" }
+          );
+          // token
+          jwt.sign(
+            {
+              _id: user._id,
+              username: user.username,
+              name: user.name,
+              blueTick: user.blueTick,
+            },
+            process.env.SECRET_KEY,
+            { expiresIn: "30m" },
             async (err, token) => {
               res.status(200).json({
                 id: user._id,
                 name: user.name,
                 username: user.username,
-                blueTick : user.blueTick,
+                blueTick: user.blueTick,
                 token: token,
+                refreshToken: refreshToken,
               });
             }
           );
@@ -51,18 +63,29 @@ module.exports = new (class authController extends Controller {
           name: req.body.name || "",
           password: bcrypt.hashSync(req.body.password, sult),
         });
-        newUser.save().then((result) => {
-          jwt.sign(
-            { _id: result._id, username: result.username, name: result.name , blueTick : result.blueTick, },
+        newUser.save().then(async (result) => {
+          const refreshToken = await jwt.sign(
+            { _id: result._id },
             process.env.SECRET_KEY,
-            { expiresIn: "1h" },
+            { expiresIn: "1h" }
+          );
+          jwt.sign(
+            {
+              _id: result._id,
+              username: result.username,
+              name: result.name,
+              blueTick: result.blueTick,
+            },
+            process.env.SECRET_KEY,
+            { expiresIn: "30m" },
             (err, token) => {
               res.status(200).json({
                 id: result._id,
                 username: result.username,
                 name: result.name,
-                blueTick : result.blueTick,
+                blueTick: result.blueTick,
                 token: token,
+                refreshToken: refreshToken,
               });
             }
           );
@@ -91,11 +114,69 @@ module.exports = new (class authController extends Controller {
               id: authData._id,
               name: authData.name,
               username: authData.username,
-              blueTick : authData.blueTick,
+              blueTick: authData.blueTick,
               token: token,
             });
           }
         });
+      } else {
+        res.status(403).json({
+          message: "Token is not found",
+          success: false,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async refreshToken(req, res, next) {
+    // inputs : {username , password}{name}
+    try {
+      const bearerHeader = req.headers["refresh"];
+      if (typeof bearerHeader !== "undefined") {
+        const bearer = bearerHeader.split(" ");
+        const refreshToken = bearer[1];
+        jwt.verify(
+          refreshToken,
+          process.env.SECRET_KEY,
+          async (err, authData) => {
+            if (err) {
+              res.status(403).json({
+                message: "Your token has expired",
+                success: false,
+              });
+            } else {
+              let user = await User.findOne({ _id: authData._id });
+              if (user) {
+                const refreshToken = await jwt.sign(
+                  { _id: user._id },
+                  process.env.SECRET_KEY,
+                  { expiresIn: "1h" }
+                );
+                jwt.sign(
+                  {
+                    _id: user._id,
+                    username: user.username,
+                    name: user.name,
+                    blueTick: user.blueTick,
+                  },
+                  process.env.SECRET_KEY,
+                  (err, token) => {
+                    res.status(200).json({
+                      id: user._id,
+                      name: user.name,
+                      username: user.username,
+                      blueTick: user.blueTick,
+                      token: token,
+                      refreshToken: refreshToken,
+                    });
+                  }
+                );
+              }
+            }
+          }
+        );
       } else {
         res.status(403).json({
           message: "Token is not found",
