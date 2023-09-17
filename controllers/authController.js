@@ -12,7 +12,7 @@ module.exports = new (class authController extends Controller {
       if (user) {
         if (await bcrypt.compare(req.body.password, user.password)) {
           jwt.sign(
-            { _id: user._id, username: user.username, name: user.name },
+            { _id: user._id, username: user.username, name: user.name , blueTick : user.blueTick, },
             process.env.SECRET_KEY,
             { expiresIn: "1h" },
             async (err, token) => {
@@ -20,6 +20,7 @@ module.exports = new (class authController extends Controller {
                 id: user._id,
                 name: user.name,
                 username: user.username,
+                blueTick : user.blueTick,
                 token: token,
               });
             }
@@ -52,7 +53,7 @@ module.exports = new (class authController extends Controller {
         });
         newUser.save().then((result) => {
           jwt.sign(
-            { _id: result._id, username: result.username, name: result.name },
+            { _id: result._id, username: result.username, name: result.name , blueTick : result.blueTick, },
             process.env.SECRET_KEY,
             { expiresIn: "1h" },
             (err, token) => {
@@ -60,10 +61,45 @@ module.exports = new (class authController extends Controller {
                 id: result._id,
                 username: result.username,
                 name: result.name,
+                blueTick : result.blueTick,
                 token: token,
               });
             }
           );
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+  async verifyToken(req, res, next) {
+    // inputs : {username , password}{name}
+    try {
+      const bearerHeader = req.headers["authorization"];
+      if (typeof bearerHeader !== "undefined") {
+        const bearer = bearerHeader.split(" ");
+        const token = bearer[1];
+        jwt.verify(token, process.env.SECRET_KEY, (err, authData) => {
+          if (err) {
+            res.status(403).json({
+              message: "Your token has expired",
+              success: false,
+            });
+          } else {
+            console.log(authData);
+            res.status(200).json({
+              id: authData._id,
+              name: authData.name,
+              username: authData.username,
+              blueTick : authData.blueTick,
+              token: token,
+            });
+          }
+        });
+      } else {
+        res.status(403).json({
+          message: "Token is not found",
+          success: false,
         });
       }
     } catch (error) {

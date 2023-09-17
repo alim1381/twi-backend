@@ -4,8 +4,11 @@ const verify = require('./verify/verify')
 
 router.use("/auth", require("./auth"));
 
-router.use("/chats", require("./chat"));
+
 router.use(verify)
+
+router.use("/users", require("./users"));
+router.use("/chats", require("./chat"));
 router.use("/posts", require("./post"));
 
 router.all("*", (req, res, next) => {
