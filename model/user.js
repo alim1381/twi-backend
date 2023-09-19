@@ -7,6 +7,7 @@ const userSchima = new Schima(
     username: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true },
     blueTick: { type: Boolean, default: false, required: true },
+    avatar: { type: String },
   },
   { timestamps: true }
 );

@@ -22,6 +22,7 @@ module.exports = new (class authController extends Controller {
               _id: user._id,
               username: user.username,
               name: user.name,
+              avatar : user.avatar ? user.avatar : null,
               blueTick: user.blueTick,
             },
             process.env.SECRET_KEY,
@@ -31,6 +32,7 @@ module.exports = new (class authController extends Controller {
                 id: user._id,
                 name: user.name,
                 username: user.username,
+                avatar: user.avatar,
                 blueTick: user.blueTick,
                 token: token,
                 refreshToken: refreshToken,
@@ -38,11 +40,16 @@ module.exports = new (class authController extends Controller {
             }
           );
         } else {
-          res.status(400).json({
-            message: "No user found with this username",
+          res.status(404).json({
+            message: "This password does not match the username",
             success: false,
           });
         }
+      } else {
+        res.status(404).json({
+          message: "No user found with this username",
+          success: false,
+        });
       }
     } catch (error) {
       next(error);
@@ -62,6 +69,9 @@ module.exports = new (class authController extends Controller {
           username: req.body.username,
           name: req.body.name || "",
           password: bcrypt.hashSync(req.body.password, sult),
+          avatar: req.file
+            ? req.file.path.replace(/\\/g, "/").substring(6)
+            : null,
         });
         newUser.save().then(async (result) => {
           const refreshToken = await jwt.sign(
@@ -74,6 +84,7 @@ module.exports = new (class authController extends Controller {
               _id: result._id,
               username: result.username,
               name: result.name,
+              avatar : result.avatar ? result.avatar : null,
               blueTick: result.blueTick,
             },
             process.env.SECRET_KEY,
@@ -83,6 +94,7 @@ module.exports = new (class authController extends Controller {
                 id: result._id,
                 username: result.username,
                 name: result.name,
+                avatar: result.avatar ? result.avatar : null,
                 blueTick: result.blueTick,
                 token: token,
                 refreshToken: refreshToken,
@@ -110,13 +122,17 @@ module.exports = new (class authController extends Controller {
             });
           } else {
             console.log(authData);
-            res.status(200).json({
-              id: authData._id,
-              name: authData.name,
-              username: authData.username,
-              blueTick: authData.blueTick,
-              token: token,
-            });
+            setTimeout(() => {
+              
+              res.status(200).json({
+                id: authData._id,
+                name: authData.name,
+                username: authData.username,
+                avatar : authData.avatar ? authData.avatar : null,
+                blueTick: authData.blueTick,
+                token: token,
+              });
+            } , 2000)
           }
         });
       } else {
@@ -159,6 +175,7 @@ module.exports = new (class authController extends Controller {
                     _id: user._id,
                     username: user.username,
                     name: user.name,
+                    avatar : user.avatar ? user.avatar : null,
                     blueTick: user.blueTick,
                   },
                   process.env.SECRET_KEY,
@@ -168,6 +185,7 @@ module.exports = new (class authController extends Controller {
                       name: user.name,
                       username: user.username,
                       blueTick: user.blueTick,
+                      avatar : user.avatar ? user.avatar : null,
                       token: token,
                       refreshToken: refreshToken,
                     });
