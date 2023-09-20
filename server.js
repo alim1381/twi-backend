@@ -10,10 +10,10 @@ const Chat = require("./model/chat");
 const ChatList = require("./model/chatsList");
 
 mongoose
-  // .connect("mongodb://127.0.0.1:27017/twi")
-  .connect(
-    "mongodb+srv://alim:123qweasdzxc@cluster0.bxjnnrq.mongodb.net/twi?retryWrites=true&w=majority&appName=AtlasApp"
-  )
+  .connect("mongodb://127.0.0.1:27017/twi")
+  // .connect(
+  //  process.env.DB 
+  // )
   .then((res) => console.log("db connect"))
   .catch((err) => console.log(err));
 

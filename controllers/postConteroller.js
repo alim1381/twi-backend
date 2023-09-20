@@ -36,7 +36,11 @@ module.exports = new (class PostController extends Controller {
 
   async getAllPostUser(req, res, next) {
     try {
+      const pageSize = 10;
       let posts = await Post.find({ author: req.params.userId })
+        .sort({ createdAt: -1 })
+        .skip(req.query.page ? pageSize * req.query.page - pageSize : 0)
+        .limit(req.query.page ? pageSize : 0)
         .select("-createdAt -__v")
         .populate("author", "-password -createdAt -updatedAt -__v");
       if (posts) {
