@@ -4,6 +4,7 @@ const Schima = mongoose.Schema;
 const postSchima = new Schima(
   {
     textBody: { type: String, require: true },
+    image: { type: String },
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",

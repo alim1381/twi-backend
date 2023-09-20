@@ -22,7 +22,7 @@ module.exports = new (class authController extends Controller {
               _id: user._id,
               username: user.username,
               name: user.name,
-              avatar : user.avatar ? user.avatar : null,
+              avatar: user.avatar ? user.avatar : null,
               blueTick: user.blueTick,
             },
             process.env.SECRET_KEY,
@@ -84,7 +84,7 @@ module.exports = new (class authController extends Controller {
               _id: result._id,
               username: result.username,
               name: result.name,
-              avatar : result.avatar ? result.avatar : null,
+              avatar: result.avatar ? result.avatar : null,
               blueTick: result.blueTick,
             },
             process.env.SECRET_KEY,
@@ -121,18 +121,16 @@ module.exports = new (class authController extends Controller {
               success: false,
             });
           } else {
-            console.log(authData);
             setTimeout(() => {
-              
               res.status(200).json({
                 id: authData._id,
                 name: authData.name,
                 username: authData.username,
-                avatar : authData.avatar ? authData.avatar : null,
+                avatar: authData.avatar ? authData.avatar : null,
                 blueTick: authData.blueTick,
                 token: token,
               });
-            } , 2000)
+            }, 2000);
           }
         });
       } else {
@@ -175,7 +173,7 @@ module.exports = new (class authController extends Controller {
                     _id: user._id,
                     username: user.username,
                     name: user.name,
-                    avatar : user.avatar ? user.avatar : null,
+                    avatar: user.avatar ? user.avatar : null,
                     blueTick: user.blueTick,
                   },
                   process.env.SECRET_KEY,
@@ -185,7 +183,7 @@ module.exports = new (class authController extends Controller {
                       name: user.name,
                       username: user.username,
                       blueTick: user.blueTick,
-                      avatar : user.avatar ? user.avatar : null,
+                      avatar: user.avatar ? user.avatar : null,
                       token: token,
                       refreshToken: refreshToken,
                     });

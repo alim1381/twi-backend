@@ -56,6 +56,7 @@ module.exports = new (class PostController extends Controller {
       let newPost = new Post({
         textBody: req.body.textBody,
         author: req.userData._id,
+        image: req.file ? req.file.path.replace(/\\/g, "/").substring(6) : null,
       });
       newPost.save().then((result) => {
         res.status(200).json({
