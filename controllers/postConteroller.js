@@ -72,4 +72,59 @@ module.exports = new (class PostController extends Controller {
       next(error);
     }
   }
+
+  async likePost(req, res, next) {
+    try {
+      let post = await Post.findById(req.body.postId);
+      if (!post.likes.includes(req.userData._id)) {
+        Post.updateOne(
+          { _id: req.body.postId },
+          { $push: { likes: req.userData._id } }
+        ).then((result) => {
+          res.status(200).json({
+            message: "The post was liked",
+            success: true,
+          });
+        });
+      } else {
+        res.status(400).json({
+          message: "This post has already been liked by you",
+          success: false,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getPostLikes(req, res, next) {
+    try {
+      let post = await Post.findOne({ _id: req.params.postId });
+      if (post) {
+        res.status(200).json(post.likes);
+      } else {
+        res.status(404).json({
+          message: "No post was found with this ID",
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async disLike(req, res, next) {
+    try {
+      Post.updateOne(
+        { _id: req.body.postId },
+        { $pull: { likes: req.userData._id } }
+      ).then((result) => {
+        res.status(200).json({
+          message: "The post was disliked",
+          success: true,
+        });
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 })();

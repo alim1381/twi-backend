@@ -10,6 +10,7 @@ const postSchima = new Schima(
       ref: "user",
       require: true,
     },
+    likes: [{ type: mongoose.Schema.Types.ObjectId , ref : "user"}],
   },
   { timestamps: true }
 );
