@@ -8,6 +8,8 @@ const userSchima = new Schima(
     password: { type: String, required: true },
     blueTick: { type: Boolean, default: false, required: true },
     avatar: { type: String },
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
   },
   { timestamps: true }
 );

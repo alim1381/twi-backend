@@ -2,6 +2,7 @@ const Controller = require("./controller");
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const user = require("../model/user");
 const sult = 10;
 
 module.exports = new (class authController extends Controller {
@@ -24,6 +25,8 @@ module.exports = new (class authController extends Controller {
               name: user.name,
               avatar: user.avatar ? user.avatar : null,
               blueTick: user.blueTick,
+              following: user.following,
+              followers: user.followers,
             },
             process.env.SECRET_KEY,
             { expiresIn: "30m" },
@@ -34,6 +37,8 @@ module.exports = new (class authController extends Controller {
                 username: user.username,
                 avatar: user.avatar,
                 blueTick: user.blueTick,
+                following: user.following,
+                followers: user.followers,
                 token: token,
                 refreshToken: refreshToken,
               });
@@ -96,6 +101,8 @@ module.exports = new (class authController extends Controller {
                 name: result.name,
                 avatar: result.avatar ? result.avatar : null,
                 blueTick: result.blueTick,
+                following: [],
+                followers: [],
                 token: token,
                 refreshToken: refreshToken,
               });
@@ -114,13 +121,14 @@ module.exports = new (class authController extends Controller {
       if (typeof bearerHeader !== "undefined") {
         const bearer = bearerHeader.split(" ");
         const token = bearer[1];
-        jwt.verify(token, process.env.SECRET_KEY, (err, authData) => {
+        jwt.verify(token, process.env.SECRET_KEY, async (err, authData) => {
           if (err) {
             res.status(403).json({
               message: "Your token has expired",
               success: false,
             });
           } else {
+            let userDetaile = await User.findById(authData._id)
             setTimeout(() => {
               res.status(200).json({
                 id: authData._id,
@@ -128,6 +136,8 @@ module.exports = new (class authController extends Controller {
                 username: authData.username,
                 avatar: authData.avatar ? authData.avatar : null,
                 blueTick: authData.blueTick,
+                following: userDetaile.following,
+                followers: userDetaile.followers,
                 token: token,
               });
             }, 2000);
