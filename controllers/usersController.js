@@ -10,7 +10,12 @@ module.exports = new (class UsersController extends Controller {
               username: { $regex: req.query.username },
             }
           : {}
-      ).select("-__v -updatedAt -createdAt -password");
+      )
+        .limit(req.query.showmore ? 4 : 0)
+        .sort({createdAt : -1})
+        .select(
+          "-__v -updatedAt -createdAt -password -following -followers -bio"
+        );
       res.status(200).json(searchedUsers);
     } catch (error) {
       next(error);

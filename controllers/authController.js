@@ -25,8 +25,6 @@ module.exports = new (class authController extends Controller {
               name: user.name,
               avatar: user.avatar ? user.avatar : null,
               blueTick: user.blueTick,
-              following: user.following,
-              followers: user.followers,
             },
             process.env.SECRET_KEY,
             { expiresIn: "30m" },
@@ -37,8 +35,6 @@ module.exports = new (class authController extends Controller {
                 username: user.username,
                 avatar: user.avatar,
                 blueTick: user.blueTick,
-                following: user.following,
-                followers: user.followers,
                 token: token,
                 refreshToken: refreshToken,
               });
@@ -128,7 +124,6 @@ module.exports = new (class authController extends Controller {
               success: false,
             });
           } else {
-            let userDetaile = await User.findById(authData._id)
             setTimeout(() => {
               res.status(200).json({
                 id: authData._id,
@@ -136,8 +131,6 @@ module.exports = new (class authController extends Controller {
                 username: authData.username,
                 avatar: authData.avatar ? authData.avatar : null,
                 blueTick: authData.blueTick,
-                following: userDetaile.following,
-                followers: userDetaile.followers,
                 token: token,
               });
             }, 2000);

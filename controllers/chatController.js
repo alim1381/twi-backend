@@ -7,7 +7,8 @@ module.exports = new (class chatController extends Controller {
   async createChat(req, res, next) {
     // inputs = {senderId , receiverId , text}
     try {
-      if (req.body.senderId === req.userData._id) {
+      let secUser = await User.findById(req.body.receiverId);
+      if (secUser) {
         const newChatList = new ChatList({
           firstUser: req.userData._id,
           secondUser: req.body.receiverId,
@@ -27,7 +28,7 @@ module.exports = new (class chatController extends Controller {
         });
       } else {
         res.status(404).json({
-          message: "The Entered senderId does not match your id",
+          message: "The Entered secondId is not found",
           success: false,
         });
       }
@@ -48,6 +49,33 @@ module.exports = new (class chatController extends Controller {
         .populate("firstUser", "-password -token -updatedAt -createdAt -__v")
         .populate("secondUser", "-password -token -updatedAt -createdAt -__v");
       res.status(200).json(userChatList);
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getLastMassege(req, res, next) {
+    try {
+      let list = await ChatList.findById(req.body.chatId).populate('firstUser').populate('secondUser');
+      if (
+        req.userData._id === list.firstUser.id ||
+        req.userData._id === list.secondUser.id
+        ) {
+          let lastMassage = await Chat.findOne({ chatListId: list._id })
+          .sort({ createdAt: -1 })
+          .limit(1);
+          console.log(lastMassage);
+
+        res.status(200).json({
+          lastMassage: lastMassage.text,
+          createdAt: lastMassage.createdAt,
+          success: true,
+        });
+      } else {
+        res.status(200).json({
+          message: "This chat is not yours",
+          success: false,
+        });
+      }
     } catch (error) {
       next(error);
     }
