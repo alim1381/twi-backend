@@ -8,24 +8,38 @@ module.exports = new (class chatController extends Controller {
     // inputs = {senderId , receiverId , text}
     try {
       let secUser = await User.findById(req.body.receiverId);
+      let findChatList = await ChatList.findOne({
+        $or: [
+          { firstUser: req.userData._id, secondUser: req.body.receiverId },
+          { firstUser: req.body.receiverId, secondUser: req.userData._id },
+        ],
+      });
       if (secUser) {
-        const newChatList = new ChatList({
-          firstUser: req.userData._id,
-          secondUser: req.body.receiverId,
-        });
-        newChatList.save().then((result) => {
-          const newChat = new Chat({
-            text: req.body.text,
-            senderId: req.userData._id,
-            chatListId: result._id,
+        console.log(findChatList);
+        if (!findChatList) {
+          const newChatList = new ChatList({
+            firstUser: req.userData._id,
+            secondUser: req.body.receiverId,
           });
-          newChat.save().then((r) => {
-            res.json({
-              message: "The page was created successfully",
+          newChatList.save().then((result) => {
+            const newChat = new Chat({
+              text: req.body.text,
+              senderId: req.userData._id,
               chatListId: result._id,
             });
+            newChat.save().then((r) => {
+              res.json({
+                message: "The page was created successfully",
+                chatListId: result._id,
+              });
+            });
           });
-        });
+        } else {
+          res.json({
+            message: "This page already exists",
+            chatListId: findChatList._id,
+          });
+        }
       } else {
         res.status(404).json({
           message: "The Entered secondId is not found",
@@ -46,6 +60,7 @@ module.exports = new (class chatController extends Controller {
         ],
       })
         .select("-__v -updatedAt")
+        .sort({ createdAt: -1 })
         .populate("firstUser", "-password -token -updatedAt -createdAt -__v")
         .populate("secondUser", "-password -token -updatedAt -createdAt -__v");
       res.status(200).json(userChatList);
@@ -55,15 +70,16 @@ module.exports = new (class chatController extends Controller {
   }
   async getLastMassege(req, res, next) {
     try {
-      let list = await ChatList.findById(req.body.chatId).populate('firstUser').populate('secondUser');
+      let list = await ChatList.findById(req.body.chatId)
+        .populate("firstUser")
+        .populate("secondUser");
       if (
         req.userData._id === list.firstUser.id ||
         req.userData._id === list.secondUser.id
-        ) {
-          let lastMassage = await Chat.findOne({ chatListId: list._id })
+      ) {
+        let lastMassage = await Chat.findOne({ chatListId: list._id })
           .sort({ createdAt: -1 })
           .limit(1);
-          console.log(lastMassage);
 
         res.status(200).json({
           lastMassage: lastMassage.text,
@@ -86,11 +102,20 @@ module.exports = new (class chatController extends Controller {
       let chats = await Chat.find({ chatListId: req.params.id })
         .sort({ createdAt: -1 })
         .select("-chatListId -__v -createdAt")
-        .populate("senderId", "-password -token -updatedAt -createdAt -__v");
+        .populate(
+          "senderId",
+          "-password -token -updatedAt -createdAt -__v -following -followers"
+        );
       let chatList = await ChatList.findOne({ _id: req.params.id })
         .select("-createdAt -updatedAt -__v")
-        .populate("firstUser", "-password -token -updatedAt -createdAt -__v")
-        .populate("secondUser", "-password -token -updatedAt -createdAt -__v");
+        .populate(
+          "firstUser",
+          "-password -token -updatedAt -createdAt -__v -following -followers"
+        )
+        .populate(
+          "secondUser",
+          "-password -token -updatedAt -createdAt -__v -following -followers"
+        );
       if (
         chatList.firstUser.id === req.userData._id ||
         chatList.secondUser.id === req.userData._id

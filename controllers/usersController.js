@@ -116,7 +116,6 @@ module.exports = new (class UsersController extends Controller {
     try {
       let user = await User.findById(req.body.userId);
       let loginUser = await User.findById(req.userData._id);
-      console.log(user.followers.includes(req.userData._id));
       if (
         user &&
         loginUser &&

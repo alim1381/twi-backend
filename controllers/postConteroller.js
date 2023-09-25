@@ -146,7 +146,6 @@ module.exports = new (class PostController extends Controller {
   async createComment(req, res, next) {
     try {
       let post = await Post.findById(req.body.postId);
-      console.log(req.userData.id);
       if (post) {
         let newComment = new Comment({
           postId: post._id,

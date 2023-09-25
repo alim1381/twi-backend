@@ -11,13 +11,11 @@ const ChatList = require("./model/chatsList");
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/twi")
-  // .connect(
-  //  process.env.DB 
-  // )
+  // .connect(process.env.DB)
   .then((res) => console.log("db connect"))
   .catch((err) => console.log(err));
 
-app.use(express.static('./public'))
+app.use(express.static("./public"));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 // app.use(express.json())
@@ -87,14 +85,19 @@ app.ws("/chat/:id/:token", async (ws, req) => {
         senderId: parserMsg.senderId,
         chatListId: req.params.id,
       });
-      newChat.save().then((result) => {
+      newChat.save().then(async(result) => {
+        const backMsg = await result
+          .populate(
+            "senderId",
+            "-password -token -updatedAt -createdAt -__v -following -followers"
+          );
         expressWs
           .getWss()
           .clients.forEach(
             (client) =>
               (client.clientId === parserMsg.senderId ||
                 client.clientId === parserMsg.receiverId) &&
-              client.send(JSON.stringify(parserMsg))
+              client.send(JSON.stringify(backMsg))
           );
       });
     }
