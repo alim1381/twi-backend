@@ -11,7 +11,10 @@ module.exports = new (class PostController extends Controller {
         .skip(req.query.page ? pageSize * req.query.page - pageSize : 0)
         .limit(req.query.page ? pageSize : 0)
         .select("-createdAt -__v")
-        .populate("author", "-password -createdAt -updatedAt -__v");
+        .populate(
+          "author",
+          "-password -createdAt -updatedAt -__v -bio -following -followers"
+        );
       res.status(200).json(posts);
     } catch (error) {
       next(error);
@@ -22,7 +25,10 @@ module.exports = new (class PostController extends Controller {
     try {
       let post = await Post.findOne({ _id: req.params.postId })
         .select("-createdAt -__v")
-        .populate("author", "-password -createdAt -updatedAt -__v");
+        .populate(
+          "author",
+          "-password -createdAt -updatedAt -__v -bio -following -followers"
+        );
       if (post) {
         res.status(200).json(post);
       } else {
@@ -43,7 +49,10 @@ module.exports = new (class PostController extends Controller {
         .skip(req.query.page ? pageSize * req.query.page - pageSize : 0)
         .limit(req.query.page ? pageSize : 0)
         .select("-createdAt -__v")
-        .populate("author", "-password -createdAt -updatedAt -__v");
+        .populate(
+          "author",
+          "-password -createdAt -updatedAt -__v -bio -following -followers"
+        );
       if (posts) {
         res.status(200).json(posts);
       } else {
@@ -164,6 +173,23 @@ module.exports = new (class PostController extends Controller {
           success: false,
         });
       }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getTagPosts(req, res, next) {
+    try {
+      let posts = await Post.find({
+        textBody: { $regex: `#${req.params.tag}` },
+      })
+        .sort({ createdAt: -1 })
+        .select("-createdAt -__v")
+        .populate(
+          "author",
+          "-password -createdAt -updatedAt -__v -bio -following -followers"
+        );
+      res.status(200).json(posts);
     } catch (error) {
       next(error);
     }

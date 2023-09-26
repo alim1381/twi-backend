@@ -7,6 +7,7 @@ router.get("/", postConteroller.getAllPosts.bind(postConteroller));
 // router.get("/:userId/:postId", postConteroller.getOnePost.bind(postConteroller));
 router.get("/:userId", postConteroller.getAllPostUser.bind(postConteroller));
 router.get("/single/:postId", postConteroller.getOnePost.bind(postConteroller));
+router.get("/tag/:tag", postConteroller.getTagPosts.bind(postConteroller));
 
 router.post(
   "/create",
