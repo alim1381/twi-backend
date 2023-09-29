@@ -101,6 +101,7 @@ module.exports = new (class chatController extends Controller {
     try {
       let chats = await Chat.find({ chatListId: req.params.id })
         .sort({ createdAt: -1 })
+        .limit(50)
         .select("-chatListId -__v -createdAt")
         .populate(
           "senderId",

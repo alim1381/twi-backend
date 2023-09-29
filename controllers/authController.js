@@ -73,6 +73,7 @@ module.exports = new (class authController extends Controller {
           avatar: req.file
             ? req.file.path.replace(/\\/g, "/").substring(6)
             : null,
+          bio: "",
         });
         newUser.save().then(async (result) => {
           const refreshToken = await jwt.sign(

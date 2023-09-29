@@ -1,5 +1,7 @@
 const Controller = require("./controller");
 const User = require("../model/user");
+const bcrypt = require("bcrypt");
+const sult = 10;
 
 module.exports = new (class UsersController extends Controller {
   async getAllUsers(req, res, next) {
@@ -12,7 +14,7 @@ module.exports = new (class UsersController extends Controller {
           : {}
       )
         .limit(req.query.showmore ? 4 : 0)
-        .sort({createdAt : -1})
+        .sort({ createdAt: -1 })
         .select(
           "-__v -updatedAt -createdAt -password -following -followers -bio"
         );
@@ -140,6 +142,76 @@ module.exports = new (class UsersController extends Controller {
         res.status(400).json({
           message: "Do not include the desired user in the following list",
           success: false,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async changePass(req, res, next) {
+    try {
+      let user = await User.findById(req.userData._id);
+      if (user) {
+        if (await bcrypt.compare(req.body.oldPassword, user.password)) {
+          User.updateOne(
+            { _id: user._id },
+            { $set: { password: bcrypt.hashSync(req.body.newPassword, sult) } }
+          ).then((result) => {
+            res.status(200).json({
+              message: "change password success",
+              success: true,
+            });
+          });
+        } else {
+          res.status(200).json({
+            message: "oldpassword is wrong",
+            success: false,
+          });
+        }
+      } else {
+        res.status(400).json({
+          message: "User Not Found",
+          success: false,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async editProfile(req, res, next) {
+    try {
+      let user = await User.findById(req.userData._id);
+      if (user) {
+        User.updateOne(
+          { _id: user._id },
+          {
+            $set: {
+              avatar:
+                req.file !== undefined
+                  ? req.file.path.replace(/\\/g, "/").substring(6)
+                  : req.body.deleteAvatar == 1
+                  ? null
+                  : user.avatar,
+              name: req.body.name,
+              bio: req.body.bio,
+            },
+          }
+        ).then((result) => {
+          res.status(200).json({
+            message: "profile change is success",
+            success: true,
+            profile: {
+              name: req.body.name,
+              avatar:
+                req.file !== undefined
+                  ? req.file.path.replace(/\\/g, "/").substring(6)
+                  : req.body.deleteAvatar == 1
+                  ? null
+                  : user.avatar,
+            },
+          });
         });
       }
     } catch (error) {

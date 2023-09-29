@@ -10,8 +10,8 @@ const Chat = require("./model/chat");
 const ChatList = require("./model/chatsList");
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/twi")
-  // .connect(process.env.DB)
+  // .connect("mongodb://127.0.0.1:27017/twi")
+  .connect(process.env.DB)
   .then((res) => console.log("db connect"))
   .catch((err) => console.log(err));
 
@@ -104,4 +104,4 @@ app.ws("/chat/:id/:token", async (ws, req) => {
   });
 });
 
-app.listen(3000, () => console.log("online"));
+app.listen(443, () => console.log("online"));
