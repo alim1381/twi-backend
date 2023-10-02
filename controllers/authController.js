@@ -9,7 +9,7 @@ module.exports = new (class authController extends Controller {
   async loginUser(req, res, next) {
     // inputs = {username , password}
     try {
-      let user = await User.findOne({ username: req.body.username });
+      let user = await User.findOne({ username: req.body.username.toLowerCase()});
       if (user) {
         if (await bcrypt.compare(req.body.password, user.password)) {
           const refreshToken = await jwt.sign(
@@ -67,7 +67,7 @@ module.exports = new (class authController extends Controller {
         });
       } else {
         let newUser = new User({
-          username: req.body.username,
+          username: req.body.username.toLowerCase(),
           name: req.body.name || "",
           password: bcrypt.hashSync(req.body.password, sult),
           avatar: req.file

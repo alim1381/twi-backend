@@ -1,12 +1,14 @@
 const Controller = require("./controller");
 const Post = require("../model/post");
 const Comment = require("../model/comment");
+const User = require("../model/user");
 
 module.exports = new (class PostController extends Controller {
   async getAllPosts(req, res, next) {
     try {
       const pageSize = 10;
-      let posts = await Post.find({})
+      let user = await User.findById(req.userData._id);
+      let posts = await Post.find({ author: { $in: user.following } })
         .sort({ createdAt: -1 })
         .skip(req.query.page ? pageSize * req.query.page - pageSize : 0)
         .limit(req.query.page ? pageSize : 0)

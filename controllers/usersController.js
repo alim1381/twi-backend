@@ -6,15 +6,17 @@ const sult = 10;
 module.exports = new (class UsersController extends Controller {
   async getAllUsers(req, res, next) {
     try {
+      const randomNumber = Math.round(Math.random() * 10);
       let searchedUsers = await User.find(
         req.query.username
           ? {
-              username: { $regex: req.query.username },
+              username: { $regex: req.query.username.toLowerCase() },
             }
           : {}
       )
-        .limit(req.query.showmore ? 4 : 0)
         .sort({ createdAt: -1 })
+        .skip(req.query.showmore ? randomNumber : 0)
+        .limit(req.query.showmore ? 4 : 0)
         .select(
           "-__v -updatedAt -createdAt -password -following -followers -bio"
         );
