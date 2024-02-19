@@ -104,4 +104,4 @@ app.ws("/chat/:id/:token", async (ws, req) => {
   });
 });
 
-app.listen(443, () => console.log("online"));
+app.listen(3000, () => console.log("online"));
