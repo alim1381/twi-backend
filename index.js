@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(function (req, res, next) {
   // Website you wish to allow to connect
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Origin", "https://twi-front-end.vercel.app");
 
   // Request methods you wish to allow
   res.setHeader(
@@ -45,7 +45,7 @@ app.use(function (req, res, next) {
   next();
 });
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: "https://twi-front-end.vercel.app",
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 };
