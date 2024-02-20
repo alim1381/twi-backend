@@ -4,10 +4,10 @@ const path = require("path");
 
 const storage = multer.diskStorage({
   destination: (req, file, cd) => {
-    fs.mkdirSync(path.join(process.cwd(), "public", "upload"), {
+    fs.mkdirSync(path.join(process.cwd(), "tmp"), {
       recursive: true,
     });
-    cd(null, "./public/upload");
+    cd(null, "./tmp");
   },
   filename: (req, file, cd) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);

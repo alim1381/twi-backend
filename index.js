@@ -15,7 +15,7 @@ mongoose
   .then((res) => console.log("db connect"))
   .catch((err) => console.log(err));
 
-app.use(express.static("./public"));
+app.use(express.static("./tmp"));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 // app.use(express.json())
