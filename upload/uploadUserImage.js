@@ -1,8 +1,10 @@
 const multer = require("multer");
+const fd = require("fs");
 
 const storage = multer.diskStorage({
   destination: (req, file, cd) => {
-    cd(null, "/public");
+    fs.mkdirSync(process.cwd(), "public");
+    cd(null, "./public");
   },
   filename: (req, file, cd) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
