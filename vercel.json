@@ -1,5 +1,8 @@
 {
   "version": 2,
-  "builds": [{ "src": "./index.js", "use": "@vercel/node" }],
-  "routes": [{ "src": "/(.*)", "dest": "/" }]
+"public": true,
+  "builds": [{ "src": "./index.js", "use": "@vercel/node" },
+{{ "src": "tmp/**", "use": "@vercel/static" }}
+],
+  "routes": [{ "src": "/(.*)", "dest": "/" },{ "src": "/(.+\\.[a-z]+)$", "dest": "/tmp/$1" }]
 }
