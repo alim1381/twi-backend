@@ -1,0 +1,8 @@
+{
+  "version":2,
+  "name":"test-vercel",
+  "builds":[
+    {"src":"**/*.js","use":"@now/node"},
+    {"src":"tmp/**/*","use":"@now/static"}
+  ]
+}
