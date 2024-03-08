@@ -1,6 +1,6 @@
 {
   "version":2,
-  "name":"test-vercel",
+  "name":"twi-backend",
   "builds":[
     {"src":"**/*.js","use":"@now/node"},
     {"src":"public/**/*","use":"@now/static"}
