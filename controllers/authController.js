@@ -66,12 +66,13 @@ module.exports = new (class authController extends Controller {
           success: false,
         });
       } else {
+        const imageUrl = await saveInStorage(req.file);
         let newUser = new User({
           username: req.body.username.toLowerCase(),
           name: req.body.name || "",
           password: bcrypt.hashSync(req.body.password, sult),
           avatar: req.file
-            ? req.file.path.replace(/\\/g, "/").substring(6)
+            ? imageUrl
             : null,
           bio: "",
         });

@@ -184,6 +184,7 @@ module.exports = new (class UsersController extends Controller {
 
   async editProfile(req, res, next) {
     try {
+      const imageUrl = await saveInStorage(req.file);
       let user = await User.findById(req.userData._id);
       if (user) {
         User.updateOne(
@@ -192,7 +193,7 @@ module.exports = new (class UsersController extends Controller {
             $set: {
               avatar:
                 req.file !== undefined
-                  ? req.file.path.replace(/\\/g, "/").substring(6)
+                  ? imageUrl
                   : req.body.deleteAvatar == 1
                   ? null
                   : user.avatar,
@@ -208,7 +209,7 @@ module.exports = new (class UsersController extends Controller {
               name: req.body.name,
               avatar:
                 req.file !== undefined
-                  ? req.file.path.replace(/\\/g, "/").substring(6)
+                  ? imageUrl
                   : req.body.deleteAvatar == 1
                   ? null
                   : user.avatar,

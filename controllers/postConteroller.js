@@ -2,6 +2,7 @@ const Controller = require("./controller");
 const Post = require("../model/post");
 const Comment = require("../model/comment");
 const User = require("../model/user");
+const saveInStorage = require("../firebase/firebase.util");
 
 module.exports = new (class PostController extends Controller {
   async getAllPosts(req, res, next) {
@@ -69,10 +70,12 @@ module.exports = new (class PostController extends Controller {
 
   async createPost(req, res, next) {
     try {
+      const imageUrl = await saveInStorage(req.file);
+
       let newPost = new Post({
         textBody: req.body.textBody,
         author: req.userData._id,
-        image: req.file ? req.file.path.replace(/\\/g, "/").substring(6) : null,
+        image: imageUrl,
       });
       newPost.save().then((result) => {
         res.status(200).json({
