@@ -3,6 +3,7 @@ const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const user = require("../model/user");
+const saveInStorage = require("../firebase/firebase.util");
 const sult = 10;
 
 module.exports = new (class authController extends Controller {

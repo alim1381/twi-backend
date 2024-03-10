@@ -1,6 +1,7 @@
 const Controller = require("./controller");
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
+const saveInStorage = require("../firebase/firebase.util");
 const sult = 10;
 
 module.exports = new (class UsersController extends Controller {
